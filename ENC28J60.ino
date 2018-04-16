@@ -60,7 +60,7 @@ Arduino Uno Максимальный допустимый ток, получае
 
 #include <EtherCard.h> // Подключаем скачанную библиотеку. https://yadi.sk/d/R57sVoglbhTRN
 
-#include <stdarg.h>
+#include <EEPROM.h>
 
 // MAC Address должен быть уникальным в вашей сети. Можно менять.
 
@@ -170,10 +170,12 @@ void setup()
 
 	//-----
 
+  byte state = EEPROM.read(1);
+
 	for(int i = 0; i <= 7; i++)	{
 		pinMode(LedPins[i],OUTPUT);
 
-		PinStatus[i]=true;
+		PinStatus[i] = 1 == state ? true : false;
 	}
 
   for (int i = 0; i <= 7; i++) 
@@ -220,6 +222,7 @@ void loop()
 			// "16" = количество символов "?ArduinoPIN1=on ".
 
 			else if (strncmp("?ArduinoPIN1=on ", data, 16) == 0) {
+        EEPROM.write(1, 1);
 
 				PinStatus[1] = true;
 
@@ -286,6 +289,7 @@ void loop()
 			//------------------------------------------------------
 
 			else if (strncmp("?ArduinoPIN1=off ", data, 17) == 0) {
+        EEPROM.write(1, 0); // off --- 1
 
 				PinStatus[1] = false;
 
