@@ -128,7 +128,7 @@ void homePage()
 
 				"<title>Творчество имени Смоляра</title>"
 
-        "<center><h1>ПКУ-10</h1></center>"
+        "<h1>ПКУ-10</h1>"
 
 				"Канал: <a href=\"?ArduinoPIN1=$F\">$F</a><br />"),
 
