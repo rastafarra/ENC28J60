@@ -60,6 +60,8 @@ Arduino Uno Максимальный допустимый ток, получае
 
 #include <EtherCard.h> // Подключаем скачанную библиотеку. https://yadi.sk/d/R57sVoglbhTRN
 
+#include <stdarg.h>
+
 // MAC Address должен быть уникальным в вашей сети. Можно менять.
 
 static byte mymac[] = {
@@ -70,7 +72,7 @@ static byte mymac[] = {
 
 static byte myip[] = {
 
-	192,168,1,222 };
+	192,168,11,222 };
 
 // Буфер, чем больше данных на Web странице, тем больше понадобится значения буфера.
 
@@ -88,7 +90,7 @@ int LedPins[] = {
 
 boolean PinStatus[] = {
 
-	1,2,3,4,5,6,7,8};
+	false,false,false,false,false,false,false,false};
 
 //-------------
 
@@ -96,7 +98,7 @@ const char http_OK[] PROGMEM =
 
 "HTTP/1.0 200 OK\r\n"
 
-"Content-Type: text/html\r\n"
+"Content-Type: text/html; charset=utf-8\r\n"
 
 "Pragma: no-cache\r\n\r\n";
 
@@ -124,57 +126,17 @@ void homePage()
 
 	bfill.emit_p(PSTR("$F"
 
-				"<title>ArduinoPIN Webserver</title>"
+				"<title>Творчество имени Смоляра</title>"
 
-				"ArduinoPIN 1: <a href=\"?ArduinoPIN1=$F\">$F</a><br />"
+        "<center><h1>ПКУ-10</h1></center>"
 
-				"ArduinoPIN 2: <a href=\"?ArduinoPIN2=$F\">$F</a><br />"
-
-				"ArduinoPIN 3: <a href=\"?ArduinoPIN3=$F\">$F</a><br />"
-
-				"ArduinoPIN 4: <a href=\"?ArduinoPIN4=$F\">$F</a><br />"
-
-				"ArduinoPIN 5: <a href=\"?ArduinoPIN5=$F\">$F</a><br />"
-
-				"ArduinoPIN 6: <a href=\"?ArduinoPIN6=$F\">$F</a><br />"
-
-				"ArduinoPIN 7: <a href=\"?ArduinoPIN7=$F\">$F</a><br />"
-
-				"ArduinoPIN 8: <a href=\"?ArduinoPIN8=$F\">$F</a>"),
+				"Канал: <a href=\"?ArduinoPIN1=$F\">$F</a><br />"),
 
 			http_OK,
 
 			PinStatus[1]?PSTR("off"):PSTR("on"),
 
-			PinStatus[1]?PSTR("<font color=\"green\"><b>ON</b></font>"):PSTR("<font color=\"red\">OFF</font>"),
-
-			PinStatus[2]?PSTR("off"):PSTR("on"),
-
-			PinStatus[2]?PSTR("<font color=\"green\"><b>ON</b></font>"):PSTR("<font color=\"red\">OFF</font>"),
-
-			PinStatus[3]?PSTR("off"):PSTR("on"),
-
-			PinStatus[3]?PSTR("<font color=\"green\"><b>ON</b></font>"):PSTR("<font color=\"red\">OFF</font>"),
-
-			PinStatus[4]?PSTR("off"):PSTR("on"),
-
-			PinStatus[4]?PSTR("<font color=\"green\"><b>ON</b></font>"):PSTR("<font color=\"red\">OFF</font>"),
-
-			PinStatus[5]?PSTR("off"):PSTR("on"),
-
-			PinStatus[5]?PSTR("<font color=\"green\"><b>ON</b></font>"):PSTR("<font color=\"red\">OFF</font>"),
-
-			PinStatus[6]?PSTR("off"):PSTR("on"),
-
-			PinStatus[6]?PSTR("<font color=\"green\"><b>ON</b></font>"):PSTR("<font color=\"red\">OFF</font>"),
-
-			PinStatus[7]?PSTR("off"):PSTR("on"),
-
-			PinStatus[7]?PSTR("<font color=\"green\"><b>ON</b></font>"):PSTR("<font color=\"red\">OFF</font>"),
-
-			PinStatus[8]?PSTR("off"):PSTR("on"),
-
-			PinStatus[8]?PSTR("<font color=\"green\"><b>ON</b></font>"):PSTR("<font color=\"red\">OFF</font>"));
+			PinStatus[1]?PSTR("<font color=\"green\"><b>основной</b></font>"):PSTR("<font color=\"red\">резервный</font>"));
 
 }
 
@@ -186,17 +148,9 @@ void setup()
 
 	Serial.begin(9600);
 
-	// По умолчанию в Библиотеке "ethercard" (CS-pin) = № 8.
+	if (ether.begin(sizeof Ethernet::buffer, mymac,10) == 0) {};
 
-	// if (ether.begin(sizeof Ethernet::buffer, mymac) == 0).
-
-	// and change it to: Меняем (CS-pin) на 10.
-
-	// if (ether.begin(sizeof Ethernet::buffer, mymac, 10) == 0).
-
-	if (ether.begin(sizeof Ethernet::buffer, mymac,10) == 0);
-
-//	if (!ether.dhcpSetup());
+//	if (!ether.dhcpSetup()) {};
 
 	// Выводим в Serial монитор IP адрес который нам автоматический присвоил наш Router.
 
@@ -204,7 +158,7 @@ void setup()
 
 	// Нам придётся каждый раз узнавать кой адрес у нашей страницы.
 
-	ether.printIp("My Router IP: ", ether.myip); // Выводим в Serial монитор IP адрес который нам присвоил Router.
+//	ether.printIp("My Router IP: ", ether.myip); // Выводим в Serial монитор IP адрес который нам присвоил Router.
 
 	// Здесь мы подменяем наш динамический IP на статический / постоянный IP Address нашей Web страницы.
 
@@ -212,19 +166,18 @@ void setup()
 
 	ether.staticSetup(myip);
 
-	ether.printIp("My SET IP: ", ether.myip); // Выводим в Serial монитор статический IP адрес.
+//	ether.printIp("My SET IP: ", ether.myip); // Выводим в Serial монитор статический IP адрес.
 
 	//-----
 
-	for(int i = 0; i <= 8; i++)
-
-	{
-
+	for(int i = 0; i <= 7; i++)	{
 		pinMode(LedPins[i],OUTPUT);
 
-		PinStatus[i]=false;
-
+		PinStatus[i]=true;
 	}
+
+  for (int i = 0; i <= 7; i++) 
+    digitalWrite(LedPins[i],PinStatus[i+1]);
 
 }
 
